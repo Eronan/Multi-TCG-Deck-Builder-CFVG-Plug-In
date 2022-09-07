@@ -7,7 +7,7 @@ using IGamePlugInBase;
 
 namespace CFVanguard
 {
-    public class CFArt : IAlternateArt
+    public class CFArt
     {
         public string Id { get; private set; }
 

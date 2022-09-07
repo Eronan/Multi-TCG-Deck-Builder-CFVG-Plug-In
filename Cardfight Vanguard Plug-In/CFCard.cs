@@ -34,7 +34,7 @@ namespace CFVanguard
         DStandard = 0x4,
     }
 
-    public class CFCard : ICard
+    public class CFCard
     {
         private string id;
 
@@ -86,11 +86,11 @@ namespace CFVanguard
 
         public string Name { get => this.cardname; }
 
-        public Dictionary<string, IAlternateArt> AltArts
+        public Dictionary<string, CFArt> AltArts
         {
             get
             {
-                return this.alternateArts.ToDictionary(keySelector: m => m.Id, elementSelector: m => m as IAlternateArt);
+                return this.alternateArts.ToDictionary(keySelector: m => m.Id, elementSelector: m => m);
             }
         }
 

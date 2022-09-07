@@ -67,6 +67,7 @@ async Task<bool> DownloadFilesAsync(Uri imageUri, string fileLocation)
 
     HttpClient client = new HttpClient();
     File.WriteAllBytes(fileLocation, await client.GetByteArrayAsync(imageUri));
+    client.Dispose();
 
     return true;
 }
@@ -126,7 +127,7 @@ async Task<string> GetCardArtsAsync(string id, string[] cardsetCodes, Uri galler
             var codeSplit = code.Split('/');
             if (codeSplit.Length == 1)
             {
-                string value = "";
+                Console.Write("");
             }
             var fileLocation = @".\images\" + codeSplit[0];
             fileLocation += @"\" + code.Replace('/', '-') + imageUrl.Substring(imageUrl.LastIndexOf('.'), 4);

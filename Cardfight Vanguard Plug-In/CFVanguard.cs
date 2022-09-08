@@ -1,4 +1,5 @@
-﻿using IGamePlugInBase;
+﻿using CFVanguard.Formats;
+using IGamePlugInBase;
 using IGamePlugInBase.IO;
 
 namespace CFVanguard

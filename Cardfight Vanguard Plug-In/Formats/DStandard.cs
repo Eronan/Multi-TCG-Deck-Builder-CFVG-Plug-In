@@ -1,6 +1,6 @@
 ﻿using IGamePlugInBase;
 
-namespace CFVanguard
+namespace CFVanguard.Formats
 {
     internal class DStandard : IFormat
     {

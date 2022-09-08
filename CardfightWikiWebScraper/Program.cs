@@ -142,7 +142,7 @@ async Task<string> GetCardArtsAsync(string id, string[] cardsetCodes, Uri galler
 
             var art = new CFArt(code, fileLocation, "", "");
 
-            artTable.Add("\"" + id + "\"," + code + "," + fileLocation);
+            artTable.Add("\"" + id + "\"," + code + "," + fileLocation + "," + imageUri);
             returnString += id + "," + code + "," + fileLocation + "\n";
         }
 
@@ -354,7 +354,7 @@ async Task<string> ReadDetailsAsync(string fullUrl)
                 downloadTask.Start();
             }
 
-            artTable.Add("\"" + id + "\"," + newCode + "," + fileLocation);
+            artTable.Add("\"" + id + "\"," + newCode + "," + fileLocation + "," + imageUri);
         }
         else
         {

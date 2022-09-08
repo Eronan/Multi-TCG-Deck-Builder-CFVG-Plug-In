@@ -17,6 +17,8 @@ namespace CFVanguard
 
         private string illustrator { get; set; }
 
+        private string downloadLink { get; set; }
+
         public CardArtOrientation ArtOrientation { get; private set; }
 
         public CFArt(string id, string imageLocation, string flavorText, string illustrator)

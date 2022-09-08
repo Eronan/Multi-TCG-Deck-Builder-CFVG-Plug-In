@@ -1,11 +1,15 @@
 ﻿using IGamePlugInBase;
 
-namespace CFVanguard
+namespace CFVanguard.Formats
 {
-    internal class VPremium : IFormat
+    internal class Premium : IFormat
     {
         /*
+        
+
         public ICard[] CardList => new ICard[0];
+
+        public IDeck[] Decks => new IDeck[0];
 
         public string DefaultDeckName(DeckBuilderCard card)
         {
@@ -19,7 +23,7 @@ namespace CFVanguard
 
         public string GetStats(Dictionary<string, IEnumerable<DeckBuilderCard>> decks)
         {
-            return "";
+            throw new NotImplementedException();
         }
 
         public bool ValidateMaximum(DeckBuilderCard card, Dictionary<string, IEnumerable<DeckBuilderCard>> decks)
@@ -27,14 +31,14 @@ namespace CFVanguard
             throw new NotImplementedException();
         }
         */
-        public string Name => "vformat";
+        public string Name => "premium";
 
-        public string LongName => "V Premium";
+        public string LongName => "Premium";
 
-        public byte[] Icon => Properties.Resources.V_Premium;
+        public byte[] Icon => Properties.Resources.Premium;
 
-        public string Description => "Only cards with the 'V' symbol on the bottom left of the card are allowed in this format.";
+        public string Description => "All unrestricted cards are allowed in this format.";
 
-        public IEnumerable<IDeck> Decks => new IDeck[2] { new StartingVanguard(), new MainDeck() };
+        public IEnumerable<IDeck> Decks => new IDeck[0];
     }
 }

@@ -1,6 +1,6 @@
 ﻿using IGamePlugInBase;
 
-namespace CFVanguard
+namespace CFVanguard.Decks
 {
     internal class MainDeck : IDeck
     {

@@ -26,18 +26,7 @@ namespace CFVanguard.Data
         TriggerOrder = 6,
     }
 
-    public enum Format
-    {
-        [Display(Name = "Premium")]
-        Premium = 0x1,
-        [Display(Name = "V Premium")]
-        VPremium = 0x2,
-        [Display(Name = "Standard")]
-        DStandard = 0x4,
-    }
-
-
-    public static class ExtensionMethods
+    public static class CFTypeExtensionMethods
     {
         //This is a extension class of enum
         public static string GetEnumDisplayName(this CFType enumType)

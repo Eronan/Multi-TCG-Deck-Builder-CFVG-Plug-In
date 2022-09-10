@@ -51,7 +51,7 @@ namespace CFVanguard.Formats
             clanList.Remove("SHAMAN KING");
 
             // Get SearchFields
-            SearchFields = new SearchField[12]
+            SearchFields = new SearchField[13]
             {
                 new SearchField("name", "Name", 50),
                 new SearchField("type", "Type", new string[7] {"Any", "Normal Unit", "Trigger Unit", "Normal Order", "Blitz Order", "Set Order", "Trigger Order"}, "Any"),
@@ -61,6 +61,7 @@ namespace CFVanguard.Formats
                 new SearchField("grade", "Grade", 0, 5),
                 new SearchField("power", "Power", 0, 50000),
                 new SearchField("shield", "Shield", 0, 50000),
+                new SearchField("clan", "Clan", clanList.ToArray(), "Any"),
                 new SearchField("clan", "Clan", clanList.ToArray(), "Any"),
                 new SearchField("nation", "Nation", new string[8] { "Any", "None", "United Sanctuary", "Dragon Empire", "Dark Zone", "Star Gate", "Magallanica", "Zoo"}, "Any"),
                 new SearchField("race", "Race", 50),

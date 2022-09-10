@@ -30,7 +30,8 @@ namespace CFVanguard.Data
             string? races,
             string? effects,
             long clanFightDecks,
-            long overDressDecks) : base(
+            long overDressDecks,
+            Format format) : base(
                 id,
                 artId,
                 name,
@@ -53,6 +54,7 @@ namespace CFVanguard.Data
             Effects = effects;
             ClanFightDecks = clanFightDecks;
             OverDressDecks = overDressDecks;
+            Format = format;
 
             base.ViewDetails = ViewDetails;
         }
@@ -90,6 +92,8 @@ namespace CFVanguard.Data
         /// Allowed in which Deck Types based on Binary Value
         /// </summary>
         public long OverDressDecks { get; set; }
+
+        public Format Format { get; set; }
 
         public new string ViewDetails
         {

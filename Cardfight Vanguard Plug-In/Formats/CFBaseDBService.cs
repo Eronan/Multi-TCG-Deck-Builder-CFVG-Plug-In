@@ -20,7 +20,7 @@ namespace CFVanguard.Formats
 
         protected Dictionary<string, int> Restrictions = new Dictionary<string, int>();
 
-        protected long GetDeckType(CFCardArt cfCard, bool hasGyze)
+        protected virtual long GetDeckType(CFCardArt cfCard, bool hasGyze)
         {
             var deckType = cfCard.ClanFightDecks;
 
@@ -32,13 +32,13 @@ namespace CFVanguard.Formats
             return deckType;
         }
 
-        protected bool IsNeonGyze(DeckBuilderCard card)
+        protected virtual bool IsNeonGyze(DeckBuilderCard card)
         {
             var cfCard = CFDBLoader.GetCard(card);
             return cfCard != null && cfCard.Name == "Neon Gyze";
         }
 
-        protected bool searchFilter(DeckBuilderCard card, IEnumerable<SearchField> searchFields)
+        protected virtual bool searchFilter(DeckBuilderCard card, IEnumerable<SearchField> searchFields)
         {
             CFCardArt? cfCard = CFDBLoader.GetCard(card);
             if (cfCard == null) { return false; }
@@ -79,16 +79,20 @@ namespace CFVanguard.Formats
                         }
                         break;
                     case "subtype":
-                        if (cfCard.Subtype == null || !cfCard.Subtype.Contains(field.Value)) return false;
+                        if (field.Value == "None" && (!string.IsNullOrEmpty(cfCard.Subtype) ^ field.Comparison == SearchFieldComparison.NotEquals)) { return false; }
+                        else if (field.Value == "None") { continue; }
+                        else if (cfCard.Subtype == null || !cfCard.Subtype.Contains(field.Value)) return false;
                         break;
                     case "trigger":
                         if (field.Value == "Any") { continue; }
-                        else if (field.Value == "None" && (cfCard.Trigger != null ^ field.Comparison == SearchFieldComparison.NotEquals)) { return false; }
+                        else if (field.Value == "None" && (!string.IsNullOrEmpty(cfCard.Trigger) ^ field.Comparison == SearchFieldComparison.NotEquals)) { return false; }
+                        else if (field.Value == "None") { continue; }
                         else if (field.Value != cfCard.Trigger ^ field.Comparison == SearchFieldComparison.NotEquals) { return false; }
                         break;
                     case "rideskill":
                         if (field.Value == "Any") { continue; }
-                        else if (field.Value == "None" && (cfCard.RideSkill != null ^ field.Comparison == SearchFieldComparison.NotEquals)) { return false; }
+                        else if (field.Value == "None" && (!string.IsNullOrEmpty(cfCard.RideSkill) ^ field.Comparison == SearchFieldComparison.NotEquals)) { return false; }
+                        else if (field.Value == "None") { continue; }
                         else if (field.Value != cfCard.RideSkill ^ field.Comparison == SearchFieldComparison.NotEquals) { return false; }
                         break;
                     case "grade":
@@ -151,9 +155,15 @@ namespace CFVanguard.Formats
                             if ((binary & cfCard.ClanFightDecks) == 0 ^ field.Comparison == SearchFieldComparison.NotEquals) { return false; }
                         }
                         break;
+                    case "dclan":
+                        if (field.Value == "None" && (!string.IsNullOrEmpty(cfCard.Clans) ^ field.Comparison == SearchFieldComparison.NotEquals)) { return false; }
+                        else if (field.Value == "None") { continue; }
+                        else if ((cfCard.Clans == null || !cfCard.Clans.Contains(field.Value)) ^ field.Comparison == SearchFieldComparison.NotEquals) { return false; }
+                        break;
                     case "nation":
                         if (field.Value == "Any") { continue; }
                         else if (field.Value == "None" && (!string.IsNullOrEmpty(cfCard.Nations) ^ field.Comparison == SearchFieldComparison.NotEquals)) { return false; }
+                        else if (field.Value == "None") { continue; }
                         else if ((cfCard.Nations == null || !cfCard.Nations.Contains(field.Value)) ^ field.Comparison == SearchFieldComparison.NotEquals) { return false; }
                         break;
                     case "dnation":
@@ -167,11 +177,29 @@ namespace CFVanguard.Formats
                         break;
                     case "race":
                         if (field.Value == "Any") { continue; }
-                        else if (field.Value == "None" && (cfCard.Races != null ^ field.Comparison == SearchFieldComparison.NotEquals)) { return false; }
-                        else if ((cfCard.Races == null || !cfCard.Races.Contains(field.Value)) ^ field.Comparison == SearchFieldComparison.NotEquals) { return false; }
+                        else if (field.Value == "None" && (!string.IsNullOrEmpty(cfCard.Races) ^ field.Comparison == SearchFieldComparison.NotEquals)) { return false; }
+                        else if (field.Value == "None") { continue; }
+                        else if (field.Value != "None" && (cfCard.Races == null || !cfCard.Races.Contains(field.Value)) ^ field.Comparison == SearchFieldComparison.NotEquals) { return false; }
                         break;
                     case "effect":
-                        if ((cfCard.Effects == null || !cfCard.Effects.Contains(field.Value)) ^ field.Comparison == SearchFieldComparison.NotEquals) return false;
+                        if (field.Value == "None" && (!string.IsNullOrEmpty(cfCard.Effects) ^ field.Comparison == SearchFieldComparison.NotEquals)) { return false; }
+                        else if (field.Value == "None") { continue; }
+                        else if ((cfCard.Effects == null || !cfCard.Effects.Contains(field.Value)) ^ field.Comparison == SearchFieldComparison.NotEquals) return false;
+                        break;
+                    case "Format":
+                        switch (field.Value)
+                        {
+                            case "None":
+                                if (cfCard.Format != Format.Premium ^ field.Comparison == SearchFieldComparison.NotEquals) { return false; }
+                                break;
+                            case "V":
+                                if (!cfCard.Format.HasFlag(Format.VPremium) ^ field.Comparison == SearchFieldComparison.NotEquals) { return false; }
+                                break;
+                            case "D":
+                                if (!cfCard.Format.HasFlag(Format.DStandard) ^ field.Comparison == SearchFieldComparison.NotEquals) { return false; }
+                                break;
+
+                        }
                         break;
                 }
             }
@@ -192,6 +220,7 @@ namespace CFVanguard.Formats
             SpecialMaximums.Add("The Strongest by Nature", 8);
             SpecialMaximums.Add("Trouble Varidol, Pressiv", 16);
             SpecialMaximums.Add("Transcend Idol, Aqua", 6);
+            SpecialMaximums.Add("Elementaria Sanctitude", 1);
         }
 
         public IEnumerable<DeckBuilderCardArt> CardList { get => CFDBLoader.CardData; }
@@ -227,6 +256,7 @@ namespace CFVanguard.Formats
             int sentinel = cfCard.Subtype == "Sentinel" ? 1 : 0;
             int trigger = cfCard.CardType.IsTrigger() ? 1 : 0;
             int nontrigger = cfCard.CardType.IsMainNonTrigger() ? 1 : 0;
+            int over = cfCard.Trigger == "Over" ? 1 : 0;
             int heal = cfCard.Trigger == "Heal" ? 1 : 0;
             bool hasGyze = decks.Values.Any(dck => dck.Any(IsNeonGyze));
 
@@ -260,7 +290,7 @@ namespace CFVanguard.Formats
                     }
 
                     // Choice Restriction
-                    if (ChoiceRestrict != null && cfCard.CardID != cfDeckCard.CardID && ChoiceRestrict.Contains(cfCard.CardID)) { return true; }
+                    if (ChoiceRestrict != null && cfCard.CardID != cfDeckCard.CardID && ChoiceRestrict.Contains(cfDeckCard.CardID)) { return true; }
 
                     // Make sure Cards are the same Clan for Clan Fight Formats
                     deckType = deckType & GetDeckType(cfDeckCard, hasGyze);
@@ -312,6 +342,12 @@ namespace CFVanguard.Formats
                         heal++;
 
                         if (heal > 4) { return true; }
+                    }
+
+                    // Only 1 Over Trigger or Zeroth Dragon of Zenith Peak, Ultima Special Restriction
+                    if (over > 0 && (cfDeckCard.Trigger == "Over" || cfDeckCard.CardID == "Zeroth Dragon of Zenith Peak, Ultima"))
+                    {
+                        return true;
                     }
                 }
             }
@@ -404,6 +440,12 @@ namespace CFVanguard.Formats
             int grade2unit = 0;
             int grade3unit = 0;
             int grade4unit = 0;
+            int heal = 0;
+            int draw = 0;
+            int stand = 0;
+            int front = 0;
+            int crit = 0;
+            int over = 0;
             foreach (var cfDeck in decks)
             {
                 foreach (var card in cfDeck.Value)
@@ -424,6 +466,27 @@ namespace CFVanguard.Formats
                     if (cfCard.CardType.IsTrigger())
                     {
                         trigger++;
+                        switch (cfCard.Trigger)
+                        {
+                            case "Heal":
+                                heal++;
+                                break;
+                            case "Over":
+                                over++;
+                                break;
+                            case "Draw":
+                                draw++;
+                                break;
+                            case "Stand":
+                                stand++;
+                                break;
+                            case "Front":
+                                front++;
+                                break;
+                            case "Critical":
+                                crit++;
+                                break;
+                        }
                     }
 
                     if (cfCard.CardType.IsOrder())
@@ -466,33 +529,50 @@ namespace CFVanguard.Formats
             stringBuilder.Append("\t");
             stringBuilder.Append("Triggers: ");
             stringBuilder.Append(trigger);
+            stringBuilder.Append("\t");
+            stringBuilder.Append("\t");
+            stringBuilder.Append("Critical: ");
+            stringBuilder.Append(crit);
             stringBuilder.AppendLine();
             stringBuilder.Append("Grade 1: ");
             stringBuilder.Append(grade1unit);
             stringBuilder.Append("\t");
             stringBuilder.Append("Sentinels: ");
             stringBuilder.Append(sentinel);
+            stringBuilder.Append("\t");
+            stringBuilder.Append("Draw: ");
+            stringBuilder.Append(draw);
             stringBuilder.AppendLine();
             stringBuilder.Append("Grade 2: ");
             stringBuilder.Append(grade2unit);
             stringBuilder.Append("\t");
             stringBuilder.Append("Orders: ");
             stringBuilder.Append(order);
+            stringBuilder.Append("\t");
+            stringBuilder.Append("\t");
+            stringBuilder.Append("Front: ");
+            stringBuilder.Append(front);
             stringBuilder.AppendLine();
             stringBuilder.Append("Grade 3: ");
             stringBuilder.Append(grade3unit);
-            stringBuilder.AppendLine();
-            stringBuilder.Append("Grade 4: ");
-            stringBuilder.Append(grade4unit);
-            stringBuilder.AppendLine();
-            /*
             stringBuilder.Append("\t");
             stringBuilder.Append("G Units: ");
             stringBuilder.Append(gunit);
             stringBuilder.Append("\t");
+            stringBuilder.Append("\t");
+            stringBuilder.Append("Stand: ");
+            stringBuilder.Append(stand);
+            stringBuilder.AppendLine();
+            stringBuilder.Append("Grade 4: ");
+            stringBuilder.Append(grade4unit);
+            stringBuilder.Append("\t");
             stringBuilder.Append("G guardians: ");
             stringBuilder.Append(gguard);
             stringBuilder.Append("\t");
+            stringBuilder.Append("Heal: ");
+            stringBuilder.Append(heal);
+            stringBuilder.AppendLine();
+            /*
             */
             return stringBuilder.ToString();
         }
@@ -502,7 +582,7 @@ namespace CFVanguard.Formats
             return cards.Where(card => searchFilter(card, searchFields.Where(field => field.Value != null && field.Value != "")));
         }
 
-        public int CompareCards(DeckBuilderCard x, DeckBuilderCard y)
+        public virtual int CompareCards(DeckBuilderCard x, DeckBuilderCard y)
         {
             CFCardArt? cfX = CFDBLoader.GetCard(x);
             CFCardArt? cfY = CFDBLoader.GetCard(y);

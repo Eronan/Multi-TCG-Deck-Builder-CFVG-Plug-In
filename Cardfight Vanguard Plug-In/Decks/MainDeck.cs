@@ -8,6 +8,13 @@ namespace CFVanguard.Decks
     {
         public const string MainDeckName = "maindeck";
 
+        private int otherMainDeckCount;
+
+        public MainDeck(int otherMainDeckCount = 1)
+        {
+            this.otherMainDeckCount = otherMainDeckCount;
+        }
+
         public string Name => MainDeckName;
 
         public string Label => "Main Deck";
@@ -16,7 +23,7 @@ namespace CFVanguard.Decks
 
         public bool ValidateAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck)
         {
-            if (deck.Count() >= 49) { return false; }
+            if (deck.Count() >= 50 - otherMainDeckCount) { return false; }
             CFCardArt? cfCard = CFDBLoader.GetCard(card);
             if (cfCard == null) { return false; }
             return cfCard.CardType != CFType.GUnit;
@@ -24,7 +31,7 @@ namespace CFVanguard.Decks
 
         public string[] ValidateDeck(IEnumerable<DeckBuilderCard> deck)
         {
-            if (deck.Count() != 49)
+            if (deck.Count() != 50 - otherMainDeckCount)
             {
                 return new string[1] { "Your deck must include 49 cards." };
             }
@@ -41,11 +48,11 @@ namespace CFVanguard.Decks
                 else { nonTriggerCount++; }
             }
 
-            if (triggerCount < 15 || triggerCount > 16)
+            if (triggerCount < 16 - otherMainDeckCount || triggerCount > 16)
             {
                 return new string[1] { "You must have 16 Triggers in your Deck." };
             }
-            if (nonTriggerCount < 33 || nonTriggerCount > 34)
+            if (nonTriggerCount < 34 - otherMainDeckCount || nonTriggerCount > 34)
             {
                 return new string[1] { "You must have 16 Triggers in your Deck." };
             }

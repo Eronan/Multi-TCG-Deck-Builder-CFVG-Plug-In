@@ -55,12 +55,13 @@ namespace Cardfight_Vanguard_Plug_In
                         var effects = cardReader.GetValue("effects").ToString();
                         var clantypes = cardReader.GetFieldValue<long>("clan_dtype");
                         var nationtypes = cardReader.GetFieldValue<long>("odress_dtype");
+                        var formats = (int)cardReader.GetFieldValue<long>("formats");
 
                         // Get Fields
                         cardData.Add(new CFCardArt(id, setno, name, fileLoc, downloadUrl, cardtype, subtype, trigger,
                             grade, rideskill, ability, Convert.IsDBNull(power) ? null : Convert.ToInt32(power),
                             Convert.IsDBNull(shield) ? null : Convert.ToInt32(shield), nations, clans, races, effects,
-                            clantypes, nationtypes)
+                            clantypes, nationtypes, (Format) formats)
                         );
                     }
 

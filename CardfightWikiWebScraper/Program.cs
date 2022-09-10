@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using CFVanguard;
+using CFVanguard.Data;
 using HtmlAgilityPack;
 using System.Diagnostics;
 using System.Net.Sockets;
@@ -194,10 +195,12 @@ async Task<string> ReadDetailsAsync(string fullUrl)
         }
 
         // General Card Info
-        CardType cardType = CardType.NormalUnit;
+        CFType CFType = CFType.NormalUnit;
         string? subType = null;
+        string? trigger = null;
         int grade = 0;
-        Ability ability = Ability.None;
+        string? ability = null;
+        string? rideskill = null;
         int? power = null;
         int? shield = null;
         string[] nations = new string[0] { };
@@ -220,25 +223,25 @@ async Task<string> ReadDetailsAsync(string fullUrl)
                     switch (typeValues[0])
                     {
                         case "Normal Unit":
-                            cardType = CardType.NormalUnit;
+                            CFType = CFType.NormalUnit;
                             break;
                         case "Trigger Unit":
-                            cardType = CardType.TriggerUnit;
+                            CFType = CFType.TriggerUnit;
                             break;
                         case "G Unit":
-                            cardType = CardType.GUnit;
+                            CFType = CFType.GUnit;
                             break;
                         case "Normal Order":
-                            cardType = CardType.NormalOrder;
+                            CFType = CFType.NormalOrder;
                             break;
                         case "Blitz Order":
-                            cardType = CardType.BlitzOrder;
+                            CFType = CFType.BlitzOrder;
                             break;
                         case "Set Order":
-                            cardType = CardType.SetOrder;
+                            CFType = CFType.SetOrder;
                             break;
                         case "Trigger Order":
-                            cardType = CardType.TriggerOrder;
+                            CFType = CFType.TriggerOrder;
                             break;
                     }
                     subType = typeValues.Length == 2 ? typeValues[1] : null;
@@ -248,21 +251,7 @@ async Task<string> ReadDetailsAsync(string fullUrl)
                     grade = int.Parse(gradeSkillValues[0].Trim().Last().ToString());
                     if (gradeSkillValues.Length == 2)
                     {
-                        switch (gradeSkillValues[1].Trim())
-                        {
-                            case "Boost":
-                                ability = Ability.Boost;
-                                break;
-                            case "Intercept":
-                                ability = Ability.Intercept;
-                                break;
-                            case "Twin Drive!!":
-                                ability = Ability.TwinDrive;
-                                break;
-                            case "Triple Drive!!!":
-                                ability = Ability.TripleDrive;
-                                break;
-                        }
+                        ability = gradeSkillValues[1].Trim();
                     }
                     break;
                 case "Power":
@@ -310,8 +299,31 @@ async Task<string> ReadDetailsAsync(string fullUrl)
                     break;
                 case "Limitation Text":
                     return "";
+                case "Trigger Effect":
+                    trigger = value.Split('/')[0];
+                    break;
+                case "Imaginary Gift":
+                    var giftURl = cellNodes.Last().Descendants("a").First().GetAttributeValue("href", null);
+                    switch (giftURl)
+                    {
+                        case string when giftURl.Contains("Force"):
+                            rideskill = "Force";
+                            break;
+                        case string when giftURl.Contains("Protect"):
+                            rideskill = "Protect";
+                            break;
+                        case string when giftURl.Contains("Accel"):
+                            rideskill = "Accel";
+                            break;
+                    }
+                    break;
+                case "Ride Skill":
+                    rideskill = value;
+                    break;
             }
         }
+
+        if (rideskill == null) { return ""; }
 
         var cardsetText = htmlDoc.DocumentNode.Descendants("div").First(node => node.GetAttributeValue("class", "") == "info-extra").InnerText;
         var cardsetMatches = Regex.Matches(cardsetText, "([DGV]-){0,1}([A-Z]{1,3}[0-9]+|PR|MB)/([A-Z]{0,3}){0,1}[0-9]+(?=\\s)");
@@ -322,9 +334,10 @@ async Task<string> ReadDetailsAsync(string fullUrl)
             return "";
         }
 
-        string returnString = "\"" + id + "\",\"" + name + "\"," + (int)cardType + "," + subType + "," + grade + "," + ability + "," + power + "," + shield + "," + string.Join('/', nations) + "," + string.Join('/', clans) + "," + string.Join('/', races) + "," + effect + "," + (int)format;
+        string returnString = "\"" + id + "\",\"" + name + "\"," + (int)CFType + "," + subType + "," + trigger + "," + rideskill + "," + grade + "," + ability + "," + power + "," + shield + "," + string.Join('/', nations) + "," + string.Join('/', clans) + "," + string.Join('/', races) + "," + effect + "," + (int)format;
         Console.WriteLine(returnString);
 
+        /*
         var galleryPageNode = htmlDoc.DocumentNode.Descendants("table").First(node => node.GetAttributeValue("class", "") == "misc").Descendants("b").First().Descendants("a").FirstOrDefault();
         var galleryPageURL = galleryPageNode != null ? galleryPageNode.GetAttributeValue("href", "") : "";
 
@@ -361,6 +374,7 @@ async Task<string> ReadDetailsAsync(string fullUrl)
             var galleryPageFullURL = new Uri(uri, galleryPageURL);
             artscrapeTasks.Add(GetCardArtsAsync(id, cardsetCodes, galleryPageFullURL));
         }
+        */
 
         cardTable.Add(returnString);
         return returnString;

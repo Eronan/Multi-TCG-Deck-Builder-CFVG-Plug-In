@@ -1,10 +1,14 @@
-﻿using IGamePlugInBase;
+﻿using Cardfight_Vanguard_Plug_In;
+using CFVanguard.Data;
+using IGamePlugInBase;
 
 namespace CFVanguard.Decks
 {
     internal class MainDeck : IDeck
     {
-        public string Name => "maindeck";
+        public const string MainDeckName = "maindeck";
+
+        public string Name => MainDeckName;
 
         public string Label => "Main Deck";
 
@@ -12,12 +16,41 @@ namespace CFVanguard.Decks
 
         public bool ValidateAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck)
         {
-            throw new NotImplementedException();
+            if (deck.Count() >= 49) { return false; }
+            CFCardArt? cfCard = CFDBLoader.GetCard(card);
+            if (cfCard == null) { return false; }
+            return cfCard.CardType != CFType.GUnit;
         }
 
         public string[] ValidateDeck(IEnumerable<DeckBuilderCard> deck)
         {
-            throw new NotImplementedException();
+            if (deck.Count() != 49)
+            {
+                return new string[1] { "Your deck must include 49 cards." };
+            }
+
+            var cfDecklist = deck.Select(crd => CFDBLoader.GetCard(crd));
+
+            int triggerCount = 0;
+            int nonTriggerCount = 0;
+            foreach (var card in cfDecklist)
+            {
+                if (card == null) { return new string[1] { "There was a problem reading the Deck." }; }
+
+                if (card.CardType.IsTrigger()) { triggerCount++; }
+                else { nonTriggerCount++; }
+            }
+
+            if (triggerCount < 15 || triggerCount > 16)
+            {
+                return new string[1] { "You must have 16 Triggers in your Deck." };
+            }
+            if (nonTriggerCount < 33 || nonTriggerCount > 34)
+            {
+                return new string[1] { "You must have 16 Triggers in your Deck." };
+            }
+
+            return new string[0];
         }
     }
 }

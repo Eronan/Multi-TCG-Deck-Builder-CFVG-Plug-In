@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using IGamePlugInBase;
 
-namespace CFVanguard
+namespace CFVanguard.Data
 {
     public class CFArt
     {
@@ -23,8 +23,8 @@ namespace CFVanguard
 
         public CFArt(string id, string imageLocation, string flavorText, string illustrator)
         {
-            this.Id = id;
-            this.ImageLocation = imageLocation;
+            Id = id;
+            ImageLocation = imageLocation;
             this.flavorText = flavorText;
             this.illustrator = illustrator;
             ArtOrientation = CardArtOrientation.Portrait;

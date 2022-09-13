@@ -43,7 +43,7 @@ namespace CFVanguard.Decks
             CFCardArt? cfCard = CFDBLoader.GetCard(firstCard);
             if (cfCard != null && cfCard.Grade != 0 && (cfCard.CardType != CFType.NormalUnit && cfCard.CardType != CFType.TriggerUnit))
             {
-                return new string[1] { "Starting Vanguard must be a Grade 0 Unit."};
+                return new string[1] { "Starting Vanguard must be a Grade 0 Unit." };
             }
 
             return new string[0];

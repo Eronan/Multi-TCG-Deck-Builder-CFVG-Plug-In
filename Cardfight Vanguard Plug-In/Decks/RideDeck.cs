@@ -1,11 +1,6 @@
 ﻿using Cardfight_Vanguard_Plug_In;
 using CFVanguard.Data;
 using IGamePlugInBase;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CFVanguard.Decks
 {
@@ -37,7 +32,7 @@ namespace CFVanguard.Decks
             if (deck.Count() >= 4) { return false; }
             CFCardArt? cfCard = CFDBLoader.GetCard(card);
 
-            return cfCard != null &&  cfCard.Grade <= 3 && cfCard.CardType.IsMainUnit() &&
+            return cfCard != null && cfCard.Grade <= 3 && cfCard.CardType.IsMainUnit() &&
                 !deck.Any(crd => CFDBLoader.GetCard(crd)!.Grade == cfCard.Grade);
         }
 

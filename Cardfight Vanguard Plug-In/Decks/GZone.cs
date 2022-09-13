@@ -1,9 +1,6 @@
-﻿using IGamePlugInBase;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Cardfight_Vanguard_Plug_In;
+using CFVanguard.Data;
+using IGamePlugInBase;
 
 namespace CFVanguard.Decks
 {
@@ -18,12 +15,18 @@ namespace CFVanguard.Decks
 
         public bool ValidateAdd(DeckBuilderCard card, IEnumerable<DeckBuilderCard> deck)
         {
-            throw new NotImplementedException();
+            if (deck.Count() >= 16) { return false; }
+            CFCardArt? cfCard = CFDBLoader.GetCard(card);
+            if (cfCard == null) { return false; }
+            return cfCard.CardType == CFType.GUnit;
         }
 
         public string[] ValidateDeck(IEnumerable<DeckBuilderCard> deck)
         {
-            throw new NotImplementedException();
+            List<string> errors = new List<string>();
+            if (deck.Count() > 16) { errors.Add("You can only have 16 or less G Units in your G Zone."); }
+            if (deck.Select(CFDBLoader.GetCard).Any(crd => crd == null || crd.CardType != CFType.GUnit)) { errors.Add("Your G Zone can only contain G Units."); }
+            return errors.ToArray();
         }
     }
 }

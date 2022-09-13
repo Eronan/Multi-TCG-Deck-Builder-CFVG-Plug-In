@@ -1,13 +1,7 @@
-﻿using System.Data.SqlTypes;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Data.SQLite;
-using CFVanguard.Data;
+﻿using CFVanguard.Data;
 using IGamePlugInBase;
+using System.Data;
+using System.Data.SQLite;
 
 namespace Cardfight_Vanguard_Plug_In
 {
@@ -18,7 +12,7 @@ namespace Cardfight_Vanguard_Plug_In
 
         private CFDBLoader()
         {
-            
+
         }
 
         public static void InitializeDataset(string selectString)
@@ -61,7 +55,7 @@ namespace Cardfight_Vanguard_Plug_In
                         cardData.Add(new CFCardArt(id, setno, name, fileLoc, downloadUrl, cardtype, subtype, trigger,
                             grade, rideskill, ability, Convert.IsDBNull(power) ? null : Convert.ToInt32(power),
                             Convert.IsDBNull(shield) ? null : Convert.ToInt32(shield), nations, clans, races, effects,
-                            clantypes, nationtypes, (Format) formats)
+                            clantypes, nationtypes, (Format)formats)
                         );
                     }
 

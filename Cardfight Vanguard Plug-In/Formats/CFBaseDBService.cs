@@ -2,13 +2,7 @@
 using CFVanguard.Data;
 using CFVanguard.Decks;
 using IGamePlugInBase;
-using System;
-using System.CodeDom;
-using System.Collections.Generic;
-using System.Data.Entity.Core.Common.CommandTrees;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CFVanguard.Formats
 {
@@ -22,14 +16,7 @@ namespace CFVanguard.Formats
 
         protected virtual long GetDeckType(CFCardArt cfCard, bool hasGyze)
         {
-            var deckType = cfCard.ClanFightDecks;
-
-            if (hasGyze && cfCard.Races != null && cfCard.Races.Contains("Zeroth Dragon"))
-            {
-                deckType = long.MaxValue;
-            }
-
-            return deckType;
+            return cfCard.ClanFightDecks;
         }
 
         protected virtual bool IsNeonGyze(DeckBuilderCard card)
@@ -149,7 +136,8 @@ namespace CFVanguard.Formats
                     case "clan":
                         if (field.Value == "Any") { continue; }
                         else if (field.Value == "None" && (!string.IsNullOrEmpty(cfCard.Clans) ^ field.Comparison == SearchFieldComparison.NotEquals)) { return false; }
-                        else if (field.Value != "None")
+                        else if (field.Value == "Cray Elemental" && ((cfCard.Clans == null || !cfCard.Clans.Contains("Cray Elemental")) ^ field.Comparison == SearchFieldComparison.NotEquals)) { return false; }
+                        else if (field.Value != "None" && field.Value != "Cray Elemental")
                         {
                             long binary = CFDBLoader.ClanDecks![field.Value];
                             if ((binary & cfCard.ClanFightDecks) == 0 ^ field.Comparison == SearchFieldComparison.NotEquals) { return false; }
@@ -186,16 +174,18 @@ namespace CFVanguard.Formats
                         else if (field.Value == "None") { continue; }
                         else if ((cfCard.Effects == null || !cfCard.Effects.Contains(field.Value)) ^ field.Comparison == SearchFieldComparison.NotEquals) return false;
                         break;
-                    case "Format":
+                    case "format":
                         switch (field.Value)
                         {
-                            case "None":
+                            case "Any":
+                                continue;
+                            case "Premium Only":
                                 if (cfCard.Format != Format.Premium ^ field.Comparison == SearchFieldComparison.NotEquals) { return false; }
                                 break;
-                            case "V":
+                            case "V Series":
                                 if (!cfCard.Format.HasFlag(Format.VPremium) ^ field.Comparison == SearchFieldComparison.NotEquals) { return false; }
                                 break;
-                            case "D":
+                            case "D Series":
                                 if (!cfCard.Format.HasFlag(Format.DStandard) ^ field.Comparison == SearchFieldComparison.NotEquals) { return false; }
                                 break;
 
@@ -262,6 +252,7 @@ namespace CFVanguard.Formats
 
             // Clan Fight/Nation Fight Restrictions
             long deckType = GetDeckType(cfCard, hasGyze);
+            if (deckType == 0) { return true; }
 
             // Card Restrictions
             int restriction = Restrictions.GetValueOrDefault(cfCard.CardID, -1);
@@ -305,7 +296,7 @@ namespace CFVanguard.Formats
                             return true;
                         }
                     }
-                    
+
                     // Only 4 Sentinels
                     if (sentinel > 0 && cfDeckCard.Subtype == "Sentinel")
                     {
@@ -607,7 +598,7 @@ namespace CFVanguard.Formats
         {
             CFCardArt? cfCard = CFDBLoader.GetCard(card);
             if (cfCard == null) return MainDeck.MainDeckName;
-            
+
             if (cfCard.CardType == CFType.GUnit)
             {
                 return GZone.GZoneName;

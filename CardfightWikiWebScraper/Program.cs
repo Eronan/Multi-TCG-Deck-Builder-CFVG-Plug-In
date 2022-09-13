@@ -1,10 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using CFVanguard;
 using CFVanguard.Data;
 using HtmlAgilityPack;
-using System.Diagnostics;
-using System.Net.Sockets;
 using System.Text.RegularExpressions;
 
 
@@ -118,7 +115,7 @@ async Task<string> GetCardArtsAsync(string id, string[] cardsetCodes, Uri galler
             }
 
 
-            if (imageNode == null) 
+            if (imageNode == null)
             {
                 continue;
             }
@@ -141,7 +138,7 @@ async Task<string> GetCardArtsAsync(string id, string[] cardsetCodes, Uri galler
                 downloadTask.Start();
             }
 
-            var art = new CFArt(code, fileLocation, "", "");
+            //var art = new CFArt(code, fileLocation, "", "");
 
             artTable.Add("\"" + id + "\"," + code + "," + fileLocation + "," + imageUri);
             returnString += id + "," + code + "," + fileLocation + "\n";
